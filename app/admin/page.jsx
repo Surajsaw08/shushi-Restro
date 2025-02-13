@@ -88,6 +88,7 @@ export default function AdminDashboard() {
             <th className="border p-2">Email</th>
             <th className="border p-2">Total Amount</th>
             <th className="border p-2">Status</th>
+            <th className="border p-2">Date</th>
             {/* <th className="border p-2">Actions</th> */}
           </tr>
         </thead>
@@ -111,6 +112,8 @@ export default function AdminDashboard() {
                   <option value="Completed">Completed</option>
                 </select>
               </td>
+              <td className="border p-2">{order.createdAt.split("T")[0]}</td>
+
               {/*  if we want to change status to complete */}
               {/* <td className="border p-2">
                 <button
