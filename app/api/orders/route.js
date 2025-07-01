@@ -29,7 +29,7 @@ export async function POST(req) {
       );
     }
 
-    await connectToDB(); // ✅ Connect to MongoDB
+    await connectToDB(); //  Connect to MongoDB
 
     const newOrder = new Order({
       billingInfo,

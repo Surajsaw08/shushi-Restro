@@ -1,11 +1,11 @@
 "use client"; // Required for App Router
 import { useRouter } from "next/navigation";
-
 import { useState, useEffect } from "react";
 
 export default function Checkout() {
   const router = useRouter();
   const [cart, setCart] = useState([]);
+
   const [billingInfo, setBillingInfo] = useState({
     firstName: "",
     lastName: "",
@@ -15,11 +15,24 @@ export default function Checkout() {
 
   useEffect(() => {
     // Retrieve cart data from localStorage
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
+    const storedCart = JSON.parse(localStorage.getItem("shushicart")) || [];
+    // Convert price to number for each item
+    const normalizedCart = storedCart.map((item) => ({
+      ...item,
+      price:
+        typeof item.price === "string"
+          ? parseFloat(item.price.replace(/[^\d.]/g, ""))
+          : Number(item.price),
+    }));
+    console.log("Stored cart:", normalizedCart);
+    setCart(normalizedCart);
   }, []);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Calculate total using numeric price
+  const total = cart.reduce(
+    (sum, item) => sum + Number(item.price) * Number(item.quantity),
+    0
+  );
 
   const handleChange = (e) => {
     setBillingInfo({ ...billingInfo, [e.target.name]: e.target.value });
@@ -44,7 +57,7 @@ export default function Checkout() {
 
       if (response.ok) {
         alert("Order Placed Successfully!");
-        localStorage.removeItem("cart"); // Clear cart
+        localStorage.removeItem("shushicart"); // Clear correct cart key
         setCart([]); // Clear UI cart
         router.push("/");
       } else {
@@ -114,6 +127,13 @@ export default function Checkout() {
               className="w-full border rounded p-2"
             />
           </div>
+          {/* Place Order Button */}
+          <button
+            type="submit"
+            className="mt-6 w-full bg-black text-white py-3 rounded-3xl hover:bg-gray-800 transition"
+          >
+            Place Order
+          </button>
         </form>
 
         {/* Order Summary */}
@@ -129,7 +149,9 @@ export default function Checkout() {
                 <span>
                   {item.name} x {item.quantity}
                 </span>
-                <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                <span>
+                  ₹{(Number(item.price) * Number(item.quantity)).toFixed(2)}
+                </span>
               </li>
             ))}
           </ul>
@@ -137,14 +159,6 @@ export default function Checkout() {
             <p>Total </p>
             <p>₹{total.toFixed(2)}</p>
           </div>
-          {/* Place Order Button */}
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="mt-6 w-full bg-black text-white py-3 rounded-3xl hover:bg-gray-800 transition"
-          >
-            Place Order
-          </button>
         </div>
       </div>
     </div>
