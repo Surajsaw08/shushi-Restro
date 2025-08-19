@@ -41,7 +41,6 @@ export default function CouponManagementPage() {
     expiry: "",
     status: "Active",
   });
-
   const [editingCoupon, setEditingCoupon] = useState(null);
 
   const handleInputChange = (e) => {
