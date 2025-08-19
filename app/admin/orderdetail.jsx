@@ -57,8 +57,6 @@ export default function OrderDetail() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
-
       {/* Search & Filter */}
       <div className="flex flex-row gap-4 mb-4">
         <input
@@ -113,16 +111,6 @@ export default function OrderDetail() {
                 </select>
               </td>
               <td className="border p-2">{order.createdAt.split("T")[0]}</td>
-
-              {/*  if we want to change status to complete */}
-              {/* <td className="border p-2">
-                <button
-                  onClick={() => updateStatus(order._id, "Completed")}
-                  className="bg-green-400 text-white px-3 py-1 rounded"
-                >
-                  Completed
-                </button>
-              </td> */}
             </tr>
           ))}
         </tbody>

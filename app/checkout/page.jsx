@@ -1,22 +1,26 @@
-"use client"; // Required for App Router
+"use client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function Checkout() {
   const router = useRouter();
   const [cart, setCart] = useState([]);
-
   const [billingInfo, setBillingInfo] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
+    address: "",
   });
+
+  const [total, setTotal] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [discountedTotal, setDiscountedTotal] = useState(null);
+  const [couponApplied, setCouponApplied] = useState(false);
 
   useEffect(() => {
     // Retrieve cart data from localStorage
     const storedCart = JSON.parse(localStorage.getItem("shushicart")) || [];
-    // Convert price to number for each item
     const normalizedCart = storedCart.map((item) => ({
       ...item,
       price:
@@ -24,24 +28,56 @@ export default function Checkout() {
           ? parseFloat(item.price.replace(/[^\d.]/g, ""))
           : Number(item.price),
     }));
-    console.log("Stored cart:", normalizedCart);
     setCart(normalizedCart);
+
+    // Calculate initial total
+    const sum = normalizedCart.reduce(
+      (sum, item) => sum + Number(item.price) * Number(item.quantity),
+      0
+    );
+    setTotal(sum);
   }, []);
 
-  // Calculate total using numeric price
-  const total = cart.reduce(
-    (sum, item) => sum + Number(item.price) * Number(item.quantity),
-    0
-  );
-
+  // Billing details change handler
   const handleChange = (e) => {
     setBillingInfo({ ...billingInfo, [e.target.name]: e.target.value });
   };
 
+  // Apply coupon
+  // Apply coupon
+  const applyCoupon = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/couponVerification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          couponCode: couponCode,
+          orderTotal: total,
+        }),
+      });
+
+      const data = await res.json();
+      console.log("Coupon Response:", data);
+
+      if (res.ok && data.totalval) {
+        setDiscountedTotal(data.totalval);
+        setCouponApplied(true);
+      } else {
+        alert("Invalid coupon code!");
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      alert("Something went wrong while applying the coupon.");
+    }
+  };
+
+  // Submit order
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const orderData = { billingInfo, cart, total };
+    const finalTotal = discountedTotal ?? total;
+
+    const orderData = { billingInfo, cart, total: finalTotal };
 
     try {
       const response = await fetch("/api/orders", {
@@ -57,11 +93,10 @@ export default function Checkout() {
 
       if (response.ok) {
         alert("Order Placed Successfully!");
-        localStorage.removeItem("shushicart"); // Clear correct cart key
-        setCart([]); // Clear UI cart
+        localStorage.removeItem("shushicart");
+        setCart([]);
         router.push("/");
       } else {
-        console.error("Order failed with status:", response.status);
         alert("Failed to place order: " + responseData.error);
       }
     } catch (error) {
@@ -127,6 +162,18 @@ export default function Checkout() {
               className="w-full border rounded p-2"
             />
           </div>
+          <div className="mb-4">
+            <label className="block font-400 mb-2">Address</label>
+            <input
+              type="text"
+              name="address"
+              value={billingInfo.address}
+              onChange={handleChange}
+              required
+              className="w-full border rounded p-2"
+            />
+          </div>
+
           {/* Place Order Button */}
           <button
             type="submit"
@@ -145,7 +192,7 @@ export default function Checkout() {
           </div>
           <ul className="border-t border-b border-gray-300 py-6 px-2">
             {cart.map((item) => (
-              <li key={item.id} className="flex justify-between  py-2">
+              <li key={item.id} className="flex justify-between py-2">
                 <span>
                   {item.name} x {item.quantity}
                 </span>
@@ -155,9 +202,34 @@ export default function Checkout() {
               </li>
             ))}
           </ul>
-          <div className="mt-4 font-bold text-xl flex flex-row justify-between  border-t border-b border-gray-300 py-6 px-2">
-            <p>Total </p>
-            <p>₹{total.toFixed(2)}</p>
+
+          {/* Coupon Input */}
+          <div className="mt-4 flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter coupon code"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              className="w-full border rounded p-2"
+            />
+            <button
+              onClick={applyCoupon}
+              type="button"
+              disabled={couponApplied} // prevent clicking again
+              className={`px-4 py-2 rounded text-white ${
+                couponApplied
+                  ? "bg-green-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {couponApplied ? "Applied" : "Apply"}
+            </button>
+          </div>
+
+          {/* Total */}
+          <div className="mt-4 font-bold text-xl flex flex-row justify-between border-t border-b border-gray-300 py-6 px-2">
+            <p>Total</p>
+            <p>₹{(discountedTotal ?? total).toFixed(2)}</p>
           </div>
         </div>
       </div>

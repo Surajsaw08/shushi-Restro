@@ -48,13 +48,13 @@ export default function Home() {
           )}
         </nav>
         <footer className="mt-auto text-sm text-gray-400">
-          &copy; 2025 RestoAdmin
+          &copy; 2025 ShushiRestoAdmin
         </footer>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <h2 className="text-3xl font-semibold mb-6 capitalize">{section}</h2>
+        {/* <h2 className="text-3xl font-semibold mb-6 capitalize">{section}</h2> */}
         <div className="bg-white rounded shadow p-6">{renderSection()}</div>
       </main>
     </div>

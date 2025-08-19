@@ -1,6 +1,6 @@
 import { connectToDB } from "@/utils/db";
 import Order from "@/models/Order";
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 export async function POST(req) {
   try {
@@ -12,7 +12,8 @@ export async function POST(req) {
       !billingInfo.firstName ||
       !billingInfo.lastName ||
       !billingInfo.email ||
-      !billingInfo.phone
+      !billingInfo.phone ||
+      !billingInfo.address
     ) {
       console.error("Invalid billing info!");
       return Response.json(
@@ -21,12 +22,9 @@ export async function POST(req) {
       );
     }
 
-    if ( !cart || cart.length === 0 || total === 0) {
+    if (!cart || cart.length === 0 || total === 0) {
       console.error("Invalid order data");
-      return Response.json(
-        { error: "Invalid order data" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Invalid order data" }, { status: 400 });
     }
 
     await connectToDB(); //  Connect to MongoDB
@@ -45,8 +43,10 @@ export async function POST(req) {
     // to send email to admin
     await sendOrderEmail(newOrder);
 
-    return Response.json({ message: "Order placed successfully!" }, { status: 201 });
-
+    return Response.json(
+      { message: "Order placed successfully!" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error in API:", error);
     return Response.json(
@@ -60,27 +60,36 @@ export async function POST(req) {
 
 async function sendOrderEmail(order) {
   const transporter = nodemailer.createTransport({
-    service: "Gmail", 
+    service: "Gmail",
     port: 587,
     secure: false,
     auth: {
-      user: process.env.EMAIL_USER, 
-      pass: process.env.EMAIL_PASS, 
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: "surajsaw0801@gmail.com", 
+    to: "surajsaw0801@gmail.com",
     subject: "New Order Received",
     html: `
       <h2>New Order Received</h2>
-      <p><strong>Customer:</strong> ${order.billingInfo.firstName} ${order.billingInfo.lastName}</p>
+      <p><strong>Customer:</strong> ${order.billingInfo.firstName} ${
+      order.billingInfo.lastName
+    }</p>
       <p><strong>Email:</strong> ${order.billingInfo.email}</p>
       <p><strong>Phone:</strong> ${order.billingInfo.phone}</p>
       <h3>Order Summary:</h3>
       <ul>
-        ${order.cart.map(item => `<li>${item.name} x ${item.quantity} - ₹${item.price * item.quantity}</li>`).join("")}
+        ${order.cart
+          .map(
+            (item) =>
+              `<li>${item.name} x ${item.quantity} - ₹${
+                item.price * item.quantity
+              }</li>`
+          )
+          .join("")}
       </ul>
       <h3>Total: ₹${order.total}</h3>
        <p><strong>Status:</strong> ${order.status}</p>
