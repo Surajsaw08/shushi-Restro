@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useCart } from "@/components/CartProvider";
 import useThemeToggle from "@/hooks/useThemeToggle";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { cart, onCartClick } = useCart();
@@ -13,6 +14,7 @@ export default function Header() {
   useEffect(() => {
     setSubscribedEmail(localStorage.getItem("subscribedEmail"));
   }, []);
+  const router = useRouter();
 
   return (
     <header className="header" id="header">
@@ -32,19 +34,24 @@ export default function Header() {
               </Link>
             </li>
             <li className="nav__item">
-              <Link href="/about" className="nav__link">
+              <a href="#about" className="nav__link">
                 About us
-              </Link>
+              </a>
             </li>
-            <li className="nav__item">
-              <Link href="/popular" className="nav__link">
+            {/* <li className="nav__item">
+              <a href="#popular" className="nav__link">
                 Popular
-              </Link>
+              </a>
+            </li> */}
+            <li className="nav__item">
+              <a href="#recently" className="nav__link">
+                Recently
+              </a>
             </li>
             <li className="nav__item">
-              <Link href="/recently" className="nav__link">
-                Recently
-              </Link>
+              <a href="#subscription" className="nav__link font-bold ">
+                Subscription
+              </a>
             </li>
           </ul>
           <div
@@ -69,7 +76,7 @@ export default function Header() {
           <div onClick={handleTheme}>
             <i className="ri-moon-line change-theme" id="theme-button"></i>
           </div>
-
+          <div></div>
           <div className="relative cursor-pointer" onClick={onCartClick}>
             <i className="ri-shopping-cart-line text-xl"></i>
             {cart.length > 0 && (
@@ -78,8 +85,14 @@ export default function Header() {
               </span>
             )}
           </div>
+          <div></div>
           {subscribedEmail && (
-            <div className=" px-3 py-1.5 outline rounded-full">
+            <div
+              className="w-7 h-7 outline rounded-full flex items-center justify-center cursor-pointer font-bold "
+              onClick={() => {
+                router.push("/profile");
+              }}
+            >
               <Link href="/profile" className="nav__link ">
                 {subscribedEmail[0]}
               </Link>

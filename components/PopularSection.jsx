@@ -9,21 +9,21 @@ const PopularSection = () => {
     {
       id: 1,
       name: "Onigiri",
-      description: "Japanese Dish",
+      description: "Rice ball wrapped in seaweed.",
       price: "₹109",
       image: "/img/popular-onigiri.png",
     },
     {
       id: 2,
       name: "Spring Rolls",
-      description: "Japanese Dish",
+      description: "Crispy veggie-filled rolls.",
       price: "₹149",
       image: "/img/popular-spring-rols.png",
     },
     {
       id: 3,
       name: "Sushi Rolls",
-      description: "Japanese Dish",
+      description: "Classic rolled sushi bites.",
       price: "₹269",
       image: "/img/popular-sushi-rolls.png",
     },
@@ -32,7 +32,7 @@ const PopularSection = () => {
   return (
     <section className="popular section" id="popular">
       <span className="section__subtitle">The Best Food</span>
-      <h2 className="section__title">Popular Dishes</h2>
+      <h2 className="section__title">Our Dishes</h2>
 
       <div className="popular__container container grid">
         {dishes.map((dish) => (
@@ -51,7 +51,7 @@ const PopularSection = () => {
               className="popular__button"
               onClick={() => addToCart2(dish)}
             >
-              <i className="ri-shopping-bag-line text-1.5xl"></i>
+              <i className="ri-shopping-cart-line text-lg"></i>
             </button>
           </article>
         ))}

@@ -1,6 +1,17 @@
+"use client";
 import Image from "next/image";
+import { useCart } from "@/components/CartProvider";
 
 const RecentlySection = () => {
+  const { addToCart2 } = useCart();
+  const dish = {
+    id: 4,
+    name: "Sushi Samurai",
+    description: "Rice ball wrapped in seaweed.",
+    price: "₹299",
+    image: "/img/recently-salmon-sushi.png",
+  };
+
   return (
     <section className="recently section" id="recently">
       <div className="recently__container container grid">
@@ -12,10 +23,11 @@ const RecentlySection = () => {
           </h2>
           <p className="recently__description">
             Take a look at what's new. And do not deprive yourself of a good
-            meal, enjoy and be happy.
+            meal, enjoy and be happy at just{" "}
+            <span className="text-[#D56E3F] text-xl font-bold">₹299</span>
           </p>
-          <a href="#" className="button">
-            Order now <i className="ri-arrow-right-line"></i>
+          <a href="#" className="button" onClick={() => addToCart2(dish)}>
+            Add to cart <i className="ri-arrow-right-line"></i>
           </a>
 
           <Image

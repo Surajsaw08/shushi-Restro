@@ -1,6 +1,10 @@
+"use client";
 import React from "react";
 
 const Hero = () => {
+  const handleOrderCart = () => {
+    // Handle order cart logic here
+  };
   return (
     <div>
       <main className="main">
@@ -23,7 +27,7 @@ const Hero = () => {
                 Enjoy a good dinner with the best dishes in the restaurant and
                 improve your day.
               </p>
-              <a href="#" className="button">
+              <a href="#popular" className="button" onClick={handleOrderCart}>
                 Order now <i className="ri-arrow-right-line"></i>
               </a>
             </div>

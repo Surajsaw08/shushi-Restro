@@ -527,8 +527,8 @@ body.dark-theme {
   outline: none;
   box-shadow: 0 4px 20px hsla(19, 64%, 20%, .2);
   position: absolute;
-  bottom: 1.25rem;
-  right: 1.3rem;
+  bottom: -0.3rem;
+  right: 2rem;
   cursor: pointer;
   transition: bacground .3s;
 

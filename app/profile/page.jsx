@@ -224,7 +224,10 @@ export default function ProfilePage() {
                               {order.status || "Pending"}
                             </span>
                             <span className="text-2xl font-bold text-orange-600">
-                              ₹{order.total}
+                              ₹
+                              {order.total - Math.floor(order.total) < 0.5
+                                ? Math.floor(order.total)
+                                : Math.ceil(order.total)}
                             </span>
                           </div>
                         </div>

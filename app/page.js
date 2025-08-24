@@ -14,10 +14,18 @@ export default function Home() {
       <div className="px-20">
         <Header />
         <Hero />
-        <AboutSection />
-        <PopularSection />
-        <RecentlySection />
-        <NewsletterSection />
+        <section id="about">
+          <AboutSection />
+        </section>
+        <section id="popular">
+          <PopularSection />
+        </section>
+        <section id="recently">
+          <RecentlySection />
+        </section>
+        <section id="subscription">
+          <NewsletterSection />
+        </section>
         <Footer />
         {/* <ProductList /> */}
       </div>
