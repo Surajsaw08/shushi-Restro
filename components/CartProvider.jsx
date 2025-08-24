@@ -44,14 +44,41 @@ const CartProvider = ({ children }) => {
       )
     );
   };
-  const checkout = () => {
-    localStorage.setItem("shushicart", JSON.stringify(cart));
-    router.push("/checkout"); // Navigate to checkout
-    closeCart(); // Close the cart after checkout
+
+  const checkout = async () => {
+    const subscribedEmail = localStorage.getItem("subscribedEmail");
+
+    if (!subscribedEmail) {
+      alert("You must subscribe first before placing an order!");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/verify-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: subscribedEmail }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(
+          "⚠️ Email not found in subscription list. Please subscribe first!"
+        );
+        return;
+      }
+
+      localStorage.setItem("shushicart", JSON.stringify(cart));
+      router.push("/checkout");
+      closeCart();
+    } catch (error) {
+      console.error("Error verifying subscription:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   const totalAmount = cart.reduce((sum, item) => {
-    // Ensure price is a number
     const priceNum =
       typeof item.price === "string"
         ? parseFloat(item.price.replace(/[^\d.]/g, ""))

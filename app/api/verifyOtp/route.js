@@ -7,7 +7,8 @@ export async function POST(req) {
 
   try {
     await connectToDB();
-    //find otp
+
+    // find OTP
     const otprecord = await Otp.findOne({ email });
     if (!otprecord) {
       return new Response(
@@ -16,8 +17,7 @@ export async function POST(req) {
       );
     }
 
-    //check otp
-
+    // check OTP
     if (otprecord.otp !== otp) {
       return new Response(
         JSON.stringify({ success: false, message: "Invalid OTP" }),
@@ -25,25 +25,19 @@ export async function POST(req) {
       );
     }
 
-    //  check if user is present already in subscriber collection
-    // if present then return error
-    const user = await Subscriber.findOne({ email });
-    if (user) {
-      return new Response(
-        JSON.stringify({ success: false, message: "User already exists" }),
-        { status: 400 }
-      );
+    // check if user already exists
+    let user = await Subscriber.findOne({ email });
+    if (!user) {
+      // if not found, create new subscriber
+      user = await Subscriber.create({ email });
     }
-    // if user not present then create new user
-
-    await Subscriber.create({ email });
 
     // delete OTP after successful verification
     await Otp.deleteOne({ email });
 
     return new Response(
-      JSON.stringify({ success: true, message: "Subscribed successfully" }),
-      { status: 201 }
+      JSON.stringify({ success: true, message: "Verified successfully" }),
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error verifying OTP:", error);

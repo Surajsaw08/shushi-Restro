@@ -9,16 +9,16 @@ export async function POST(req) {
 
   try {
     await connectToDB();
-    const user = await Subscriber.findOne({ email });
-    if (user) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: "you are already subscribed",
-        }),
-        { status: 400 }
-      );
-    }
+    // const user = await Subscriber.findOne({ email });
+    // if (user) {
+    //   return new Response(
+    //     JSON.stringify({
+    //       success: false,
+    //       message: "you are already subscribed",
+    //     }),
+    //     { status: 400 }
+    //   );
+    // }
 
     //delete existing otp
     await Otp.deleteMany({ email });
@@ -44,7 +44,7 @@ export async function POST(req) {
       html: `
     <div style="font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9;">
       <h2 style="text-align: center; color: #333;">Email Verification</h2>
-      <p style="text-align: center; color: #555;">Use the OTP below to complete your verification. It will expire in <b>5 minutes</b>.</p>
+      <p style="text-align: center; color: #555;">Use the OTP below to complete your verification. It will expire in <b>1 minutes</b>.</p>
       <div style="text-align: center; margin: 20px 0;">
         <span style="font-size: 28px; letter-spacing: 8px; font-weight: bold; color: #2c3e50; background: #fff; padding: 10px 20px; border: 2px dashed #2c3e50; border-radius: 8px;">
           ${otp}

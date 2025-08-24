@@ -18,6 +18,17 @@ export default function Checkout() {
   const [discountedTotal, setDiscountedTotal] = useState(null);
   const [couponApplied, setCouponApplied] = useState(false);
 
+  // New state for disabling double clicks
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load subscribed email from localStorage into billingInfo
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("subscribedEmail");
+    if (storedEmail) {
+      setBillingInfo((prev) => ({ ...prev, email: storedEmail }));
+    }
+  }, []);
+
   useEffect(() => {
     // Retrieve cart data from localStorage
     const storedCart = JSON.parse(localStorage.getItem("shushicart")) || [];
@@ -43,7 +54,6 @@ export default function Checkout() {
     setBillingInfo({ ...billingInfo, [e.target.name]: e.target.value });
   };
 
-  // Apply coupon
   // Apply coupon
   const applyCoupon = async () => {
     try {
@@ -74,9 +84,11 @@ export default function Checkout() {
   // Submit order
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // 🚫 Prevent multiple submits
+
+    setIsSubmitting(true);
 
     const finalTotal = discountedTotal ?? total;
-
     const orderData = { billingInfo, cart, total: finalTotal };
 
     try {
@@ -102,6 +114,8 @@ export default function Checkout() {
     } catch (error) {
       console.error("Error placing order:", error);
       alert("Something went wrong!");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -177,9 +191,14 @@ export default function Checkout() {
           {/* Place Order Button */}
           <button
             type="submit"
-            className="mt-6 w-full bg-black text-white py-3 rounded-3xl hover:bg-gray-800 transition"
+            disabled={isSubmitting}
+            className={`mt-6 w-full py-3 rounded-3xl transition text-white ${
+              isSubmitting
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-black hover:bg-gray-800"
+            }`}
           >
-            Place Order
+            {isSubmitting ? "Placing Order..." : "Place Order"}
           </button>
         </form>
 
@@ -215,7 +234,7 @@ export default function Checkout() {
             <button
               onClick={applyCoupon}
               type="button"
-              disabled={couponApplied} // prevent clicking again
+              disabled={couponApplied}
               className={`px-4 py-2 rounded text-white ${
                 couponApplied
                   ? "bg-green-600 cursor-not-allowed"

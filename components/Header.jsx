@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/components/CartProvider";
 import useThemeToggle from "@/hooks/useThemeToggle";
 
@@ -8,6 +8,11 @@ export default function Header() {
   const { cart, onCartClick } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const handleTheme = useThemeToggle();
+  const [subscribedEmail, setSubscribedEmail] = useState(null);
+
+  useEffect(() => {
+    setSubscribedEmail(localStorage.getItem("subscribedEmail"));
+  }, []);
 
   return (
     <header className="header" id="header">
@@ -64,6 +69,7 @@ export default function Header() {
           <div onClick={handleTheme}>
             <i className="ri-moon-line change-theme" id="theme-button"></i>
           </div>
+
           <div className="relative cursor-pointer" onClick={onCartClick}>
             <i className="ri-shopping-cart-line text-xl"></i>
             {cart.length > 0 && (
@@ -72,6 +78,13 @@ export default function Header() {
               </span>
             )}
           </div>
+          {subscribedEmail && (
+            <div className=" px-3 py-1.5 outline rounded-full">
+              <Link href="/profile" className="nav__link ">
+                {subscribedEmail[0]}
+              </Link>
+            </div>
+          )}
           <div
             className="nav__toggle block md:hidden"
             id="nav-toggle"

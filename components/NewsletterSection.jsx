@@ -1,22 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState("");
   const [otpBox, setOtpBox] = useState(false);
   const [otp, setOtp] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Load subscription from localStorage (if already subscribed)
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("subscribedEmail");
+    if (storedEmail) {
+      setIsSubscribed(true);
+    }
+  }, []);
+
+  // Send OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) {
       alert("Please enter your email");
       return;
     }
+    setIsLoading(true); // block button
     try {
       const response = await fetch("/api/sendOtp", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
       const data = await response.json();
@@ -24,35 +37,43 @@ const NewsletterSection = () => {
       if (data.success) {
         setOtpBox(true);
       }
-      setEmail("");
     } catch (error) {
       console.error("Error sending OTP:", error);
       alert("Error sending OTP. Please try again.");
+    } finally {
+      setIsLoading(false); // unblock button
     }
   };
 
+  // Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp) {
       alert("Please enter OTP");
       return;
     }
+    setIsLoading(true); // block button
     try {
       const response = await fetch("/api/verifyOtp", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
       });
       const data = await response.json();
       alert(data.message);
       if (data.success) {
         alert("OTP Verified Successfully 🎉");
+        localStorage.setItem("subscribedEmail", email);
+        setIsSubscribed(true); // mark as subscribed
+        setOtpBox(false);
+        setOtp("");
+        setEmail("");
       }
-      setOtpBox(false);
-      setOtp("");
-      setEmail("");
     } catch (error) {
       console.error("Error verifying OTP:", error);
       alert("Error verifying OTP. Please try again.");
+    } finally {
+      setIsLoading(false); // unblock button
     }
   };
 
@@ -75,46 +96,61 @@ const NewsletterSection = () => {
               Offer Updates
             </h2>
 
-            {/* Email Form */}
-            {!otpBox && (
-              <form className="newsletter__form">
-                <input
-                  type="email"
-                  placeholder="Enter email"
-                  className="newsletter__input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <button
-                  className="button newsletter__button"
-                  type="submit"
-                  onClick={handleSubmit}
-                >
-                  Subscribe
-                </button>
-              </form>
-            )}
+            {/* Already Subscribed */}
+            {isSubscribed ? (
+              <button
+                className="button newsletter__button"
+                style={{ backgroundColor: "green", cursor: "not-allowed" }}
+                disabled
+              >
+                you are already Subscribed
+              </button>
+            ) : (
+              <>
+                {/* Email Form */}
+                {!otpBox && (
+                  <form className="newsletter__form" onSubmit={handleSubmit}>
+                    <input
+                      type="email"
+                      placeholder="Enter email"
+                      className="newsletter__input"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                    <button
+                      className="button newsletter__button"
+                      type="submit"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Processing..." : "Subscribe"}
+                    </button>
+                  </form>
+                )}
 
-            {/* OTP Form */}
-            {otpBox && (
-              <form className="newsletter__form">
-                <input
-                  type="text"
-                  placeholder="Enter OTP"
-                  className="newsletter__input"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
-                />
-                <button
-                  className="button newsletter__button"
-                  type="submit"
-                  onClick={handleVerifyOtp}
-                >
-                  Verify OTP
-                </button>
-              </form>
+                {/* OTP Form */}
+                {otpBox && (
+                  <form className="newsletter__form" onSubmit={handleVerifyOtp}>
+                    <input
+                      type="text"
+                      placeholder="Enter OTP"
+                      className="newsletter__input"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                    <button
+                      className="button newsletter__button"
+                      type="submit"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Verifying..." : "Verify OTP"}
+                    </button>
+                  </form>
+                )}
+              </>
             )}
           </div>
         </div>
